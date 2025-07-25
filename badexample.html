@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bad Data Storytelling Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Hide scrollbar for presentation */
+        }
+        .presentation-container {
+            position: relative;
+            width: 90vw; /* Responsive width */
+            max-width: 1200px; /* Max width for larger screens */
+            height: 70vh; /* Responsive height */
+            max-height: 700px; /* Max height for larger screens */
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .slide {
+            width: 100%;
+            height: 100%;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            padding-bottom: 6rem; /* Increased padding to prevent button overlap */
+            box-sizing: border-box;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+        .navigation-buttons {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+        .nav-button {
+            padding: 0.75rem 1.5rem;
+            background-color: #4f46e5; /* Indigo */
+            color: white;
+            border: none;
+            border-radius: 0.75rem; /* Rounded corners */
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .nav-button:hover {
+            background-color: #4338ca; /* Darker indigo */
+            transform: translateY(-2px);
+        }
+        .nav-button:disabled {
+            background-color: #a5b4fc; /* Lighter indigo */
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        /* Chart specific styles to make them look "bad" */
+        .chart-container {
+            width: 80%;
+            height: 60%;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .bar-chart-bad {
+            display: flex;
+            align-items: flex-end;
+            width: 100%;
+            height: 100%;
+            border-left: 2px solid #ccc; /* Y-axis line */
+            border-bottom: 2px solid #ccc; /* X-axis line */
+            padding-bottom: 30px; /* Space for X-axis labels */
+            padding-left: 50px; /* Space for Y-axis labels */
+            box-sizing: border-box;
+            position: relative;
+        }
+        .bar-chart-bad .bar {
+            width: 20%;
+            background-color: #3b82f6; /* Blue */
+            margin: 0 2.5%; /* Adjusted margin for better spacing */
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            border-radius: 0.5rem 0.5rem 0 0; /* Rounded top corners */
+            transition: height 0.5s ease-out;
+        }
+        .bar-chart-bad .bar span {
+            position: absolute;
+            top: -20px;
+            font-size: 0.8rem;
+            color: #333;
+            font-weight: bold;
+        }
+        .bar-chart-bad .x-axis-label {
+            position: absolute;
+            bottom: -25px; /* Adjusted for new padding */
+            left: 50px; /* Start after y-axis padding */
+            width: calc(100% - 50px); /* Span remaining width */
+            display: flex;
+            justify-content: space-around; /* Distribute labels */
+            font-size: 0.8rem;
+            color: #555;
+            box-sizing: border-box;
+        }
+        .bar-chart-bad .x-axis-label div {
+            flex: 1; /* Each label takes equal space */
+            text-align: center;
+            /* Removed transform: translateX(10%); */
+        }
+
+        .y-axis-label {
+            position: absolute;
+            left: 0; /* Aligned to the left edge of the chart area */
+            top: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 0.7rem;
+            color: #777;
+            padding-right: 10px; /* Space between label and axis */
+            box-sizing: border-box;
+        }
+        .y-axis-label div {
+            transform: translateY(50%); /* Adjust for label centering */
+            white-space: nowrap;
+        }
+
+        .pie-chart-bad-container {
+            display: flex;
+            flex-direction: row; /* Layout pie and legend side-by-side */
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem; /* Space between pie and legend */
+        }
+        .pie-chart-bad {
+            flex-shrink: 0; /* Prevent pie from shrinking */
+            width: 50%; /* Adjusted width for pie chart */
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #ef4444 0% 20%, /* Red */
+                #f97316 20% 30%, /* Orange */
+                #eab308 30% 40%, /* Yellow */
+                #22c55e 40% 50%, /* Green */
+                #3b82f6 50% 60%, /* Blue */
+                #6366f1 60% 70%, /* Indigo */
+                #8b5cf6 70% 80%, /* Purple */
+                #ec4899 80% 90%, /* Pink */
+                #f43f5e 90% 100% /* Rose */
+            );
+            position: relative;
+            transform: rotateX(45deg) rotateY(15deg); /* 3D effect */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .pie-chart-bad::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            height: 50%;
+            background-color: white;
+            border-radius: 50%;
+        }
+        .pie-legend {
+            flex-grow: 1; /* Allow legend to take remaining space */
+            text-align: left;
+            font-size: 0.9rem; /* Slightly larger font */
+            color: #333;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .pie-legend li {
+            margin-bottom: 0.5rem; /* More spacing */
+            display: flex;
+            align-items: center;
+        }
+        .pie-legend li::before {
+            content: '';
+            display: inline-block;
+            width: 15px; /* Larger color swatch */
+            height: 15px;
+            margin-right: 10px;
+            border-radius: 4px; /* Slightly rounded */
+        }
+        .pie-legend li:nth-child(1)::before { background-color: #ef4444; }
+        .pie-legend li:nth-child(2)::before { background-color: #f97316; }
+        .pie-legend li:nth-child(3)::before { background-color: #eab308; }
+        .pie-legend li:nth-child(4)::before { background-color: #22c55e; }
+        .pie-legend li:nth-child(5)::before { background-color: #3b82f6; }
+        .pie-legend li:nth-child(6)::before { background-color: #6366f1; }
+        .pie-legend li:nth-child(7)::before { background-color: #8b5cf6; }
+        .pie-legend li:nth-child(8)::before { background-color: #ec4899; }
+        .pie-legend li:nth-child(9)::before { background-color: #f43f5e; }
+
+
+        .line-chart-bad {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border-left: 2px solid #ccc;
+            border-bottom: 2px solid #ccc;
+            padding: 20px;
+            padding-left: 40px; /* Space for Y-axis labels */
+            padding-bottom: 30px; /* Space for X-axis labels */
+            box-sizing: border-box;
+        }
+        .line-chart-bad svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible; /* Allow points to extend slightly */
+        }
+        .line-chart-bad .line {
+            fill: none;
+            stroke: #ef4444; /* Red line */
+            stroke-width: 4; /* Thick line */
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+        .line-chart-bad .point {
+            fill: #ef4444;
+            stroke: white;
+            stroke-width: 2;
+        }
+        .line-chart-bad .x-axis-label {
+            position: absolute;
+            bottom: -25px; /* Adjusted for new padding */
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #555;
+            padding: 0 40px; /* Align with chart area */
+            box-sizing: border-box;
+        }
+        .line-chart-bad .y-axis-label-line {
+            position: absolute;
+            left: 0; /* Aligned to the left edge of the chart area */
+            top: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 0.7rem;
+            color: #777;
+            padding-right: 5px; /* Space between label and axis */
+            box-sizing: border-box;
+        }
+        .line-chart-bad .y-axis-label-line div {
+            transform: translateY(50%);
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title Slide -->
+        <div class="slide active" id="slide-1">
+            <h1 class="text-5xl font-extrabold text-indigo-700 mb-6">Q2 Performance Review: A Look at Our Success</h1>
+            <p class="text-xl text-gray-700">Presented by: The Data Analytics Team</p>
+        </div>
+
+        <!-- Slide 2: Introduction/Agenda -->
+        <div class="slide" id="slide-2">
+            <h2 class="text-4xl font-bold text-indigo-600 mb-6">Introduction & Agenda</h2>
+            <ul class="text-2xl text-gray-800 list-disc list-inside space-y-3">
+                <li>Review Q2 Performance Highlights</li>
+                <li>Analyze Key Performance Indicators</li>
+                <li>Identify Strategic Opportunities</li>
+                <li>Outline Future Initiatives</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Bad Visualization 1 - Truncated Y-axis Bar Chart -->
+        <div class="slide" id="slide-3">
+            <h2 class="text-4xl font-bold text-indigo-600 mb-6">Customer Engagement: Significant Upward Trend</h2>
+            <div class="chart-container">
+                <div class="bar-chart-bad">
+                    <div class="y-axis-label">
+                        <div>100.0%</div>
+                        <div>99.5%</div>
+                        <div>99.0%</div>
+                        <div>98.5%</div>
+                        <div>98.0%</div>
+                    </div>
+                    <div class="bar" style="height: 20%;"><span class="text-blue-800">98.1%</span></div>
+                    <div class="bar" style="height: 40%;"><span class="text-blue-800">98.5%</span></div>
+                    <div class="bar" style="height: 60%;"><span class="text-blue-800">99.0%</span></div>
+                    <div class="bar" style="height: 100%;"><span class="text-blue-800">99.8%</span></div>
+                    <div class="x-axis-label">
+                        <div>Q1</div>
+                        <div>Q2</div>
+                        <div>Q3</div>
+                        <div>Q4</div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-xl text-gray-700 mt-4">Our customer engagement metrics demonstrate a consistent and positive growth trajectory, showing nearly a 2% increase over the period.</p>
+        </div>
+
+        <!-- Slide 4: Bad Visualization 2 - Overly Complex Pie Chart with 3D -->
+        <div class="slide" id="slide-4">
+            <h2 class="text-4xl font-bold text-indigo-600 mb-6">Product Sales by Region: A Diverse Success Story</h2>
+            <div class="chart-container pie-chart-bad-container">
+                <div class="pie-chart-bad"></div>
+                <ul class="pie-legend">
+                    <li>North: 20%</li>
+                    <li>South: 10%</li>
+                    <li>East: 10%</li>
+                    <li>West: 10%</li>
+                    <li>Central: 10%</li>
+                    <li>International A: 10%</li>
+                    <li>International B: 10%</li>
+                    <li>Other: 10%</li>
+                    <li>Misc: 10%</li>
+                </ul>
+            </div>
+            <p class="text-xl text-gray-700 mt-4">The North region contributes a significant 20% to overall product sales, highlighting the effectiveness of our regional strategies.</p>
+        </div>
+
+        <!-- Slide 5: Bad Visualization 3 - Misleading Line Chart (Irregular Intervals, No Context) -->
+        <div class="slide" id="slide-5">
+            <h2 class="text-4xl font-bold text-indigo-600 mb-6">Website Traffic: Social Media Channel Performance</h2>
+            <div class="chart-container">
+                <div class="line-chart-bad">
+                    <div class="y-axis-label-line">
+                        <div>100</div>
+                        <div>80</div>
+                        <div>60</div>
+                        <div>40</div>
+                        <div>20</div>
+                        <div>0</div>
+                    </div>
+                    <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <!-- Data points: (Month, Value) -->
+                        <polyline class="line" points="
+                            0,95  /* Jan: 5 */
+                            10,80 /* Feb: 20 */
+                            20,70 /* Mar: 30 */
+                            30,60 /* Apr: 40 */
+                            40,50 /* May: 50 */
+                            50,40 /* Jun: 60 */
+                            60,30 /* Jul: 70 */
+                            70,20 /* Aug: 80 */
+                            80,10 /* Sep: 90 */
+                            90,5  /* Oct: 95 */
+                            100,0 /* Nov: 100 */
+                        "/>
+                        <!-- Points for visual clarity -->
+                        <circle class="point" cx="0" cy="95" r="2"/>
+                        <circle class="point" cx="10" cy="80" r="2"/>
+                        <circle class="point" cx="20" cy="70" r="2"/>
+                        <circle class="point" cx="30" cy="60" r="2"/>
+                        <circle class="point" cx="40" cy="50" r="2"/>
+                        <circle class="point" cx="50" cy="40" r="2"/>
+                        <circle class="point" cx="60" cy="30" r="2"/>
+                        <circle class="point" cx="70" cy="20" r="2"/>
+                        <circle class="point" cx="80" cy="10" r="2"/>
+                        <circle class="point" cx="90" cy="5" r="2"/>
+                        <circle class="point" cx="100" cy="0" r="2"/>
+                    </svg>
+                    <div class="x-axis-label">
+                        <span>Jan</span>
+                        <span>Feb</span>
+                        <span>Mar</span>
+                        <span>Apr</span>
+                        <span>May</span>
+                        <span>Jun</span>
+                        <span>Jul</span>
+                        <span>Aug</span>
+                        <span>Sep</span>
+                        <span>Oct</span>
+                        <span>Nov</span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-xl text-gray-700 mt-4">Analysis of our social media traffic indicates a clear and consistent upward trend, suggesting its growing importance as a channel.</p>
+        </div>
+
+        <!-- Slide 6: Flawed Analysis/Interpretation -->
+        <div class="slide" id="slide-6">
+            <h2 class="text-4xl font-bold text-indigo-600 mb-6">Key Strategic Insights</h2>
+            <ul class="text-2xl text-gray-800 list-disc list-inside space-y-3">
+                <li>Customer engagement has reached peak levels, reflecting strong product adoption and user satisfaction.</li>
+                <li>The robust performance in the North region suggests a strong market fit and potential for further concentrated investment.</li>
+                <li>The sustained growth in social media traffic positions it as a critical component of our future marketing strategy, warranting increased focus.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 7: Wrong Call to Action -->
+        <div class="slide" id="slide-7">
+            <h2 class="text-4xl font-bold text-indigo-600 mb-6">Strategic Recommendations & Next Steps</h2>
+            <ul class="text-2xl text-gray-800 list-disc list-inside space-y-3">
+                <li>Reallocate a significant portion of the marketing budget to scale social media initiatives, leveraging its demonstrated growth.</li>
+                <li>Prioritize product development efforts to align with the success observed in the North region's top-performing products.</li>
+                <li>Optimize customer support resources, aligning staffing levels with the high engagement and perceived satisfaction indicated by our metrics.</li>
+                <li>Develop a communications strategy to highlight our positive Q2 performance to stakeholders and the market.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 8: Conclusion/Summary -->
+        <div class="slide" id="slide-8">
+            <h2 class="text-4xl font-bold text-indigo-600 mb-6">Conclusion: Q2 Performance Summary</h2>
+            <p class="text-2xl text-gray-800 mb-4">Q2 demonstrates a positive trajectory, validating our strategic focus and the insights derived from our data analysis.</p>
+            <p class="text-2xl text-gray-800">Thank you.</p>
+            <p class="text-lg text-gray-500 mt-6">Questions?</p>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="navigation-buttons">
+            <button id="prevBtn" class="nav-button" disabled>Previous</button>
+            <button id="nextBtn" class="nav-button">Next</button>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+            updateButtons();
+        }
+
+        function updateButtons() {
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        });
+
+        // Initial display
+        document.addEventListener('DOMContentLoaded', () => {
+            showSlide(currentSlide);
+        });
+    </script>
+</body>
+</html>
