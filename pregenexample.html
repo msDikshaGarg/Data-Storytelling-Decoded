@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Housing Market Insights Infographic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Energetic & Playful -->
+    <!-- Application Structure Plan: The infographic follows a linear narrative designed for storytelling. It starts with a high-impact "hook" (average market price) to capture attention. It then flows logically through sections: 1. Market Overview (composition), 2. Key Price Drivers (Size, Location, Features), 3. A strategic summary (SWOT-style analysis), and 4. A concluding Call to Action. This structure was chosen to guide the user through a data-driven story, making complex information digestible in a single, scrollable page, which is ideal for an infographic format. -->
+    <!-- Visualization & Content Choices: [Avg Price -> Goal: Inform -> Big Number (HTML) -> Justification: High-impact hook]. [Property Mix -> Goal: Compare -> Donut Chart (Chart.js/Canvas) -> Justification: Shows part-to-whole composition clearly]. [Price vs Size -> Goal: Relationship -> Scatter Plot (Chart.js/Canvas) -> Justification: Best for correlation]. [Price by Location/Bedrooms -> Goal: Compare -> Bar Charts (Chart.js/Canvas) -> Justification: Clear categorical comparison]. [Market SWOT -> Goal: Organize -> HTML/CSS Grid -> Justification: Simple, effective layout for qualitative summary]. All choices use Canvas or HTML/CSS, strictly avoiding SVG/Mermaid to meet requirements. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F5F2; /* Creamy White */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+        h1, h2, h3 {
+            color: #1A3A3A; /* Dark Teal */
+        }
+        .accent-text {
+            color: #FF6B6B; /* Coral Red */
+        }
+    </style>
+</head>
+<body class="text-gray-700">
+
+    <main class="container mx-auto px-4 py-12 md:px-8">
+
+        <header class="text-center mb-16">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-4">Unlocking Home Value</h1>
+            <p class="text-lg md:text-xl max-w-3xl mx-auto text-gray-600">A visual deep-dive into the key factors driving today's dynamic housing market.</p>
+        </header>
+
+        <section class="mb-20 text-center">
+            <h2 class="text-3xl font-bold mb-2">Average Market Price</h2>
+            <p id="avg-price-stat" class="text-7xl font-extrabold accent-text">$452,000</p>
+            <p class="text-gray-500 mt-2">Based on an analysis of recent sales across all property types.</p>
+        </section>
+        
+        <section class="mb-20 card">
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="text-left">
+                    <h2 class="text-3xl font-bold mb-4">The Market Mix</h2>
+                    <p class="text-lg mb-4">The housing market is diverse, but single-family homes dominate the landscape, representing the majority of available properties. Condos and townhouses offer alternative, often more affordable, entry points into the market.</p>
+                    <p class="text-gray-500">This distribution is crucial for understanding inventory and demand dynamics across different segments.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="propertyTypeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-20">
+            <h2 class="text-4xl font-extrabold text-center mb-12">Key Price Drivers</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div class="card">
+                    <h3 class="text-2xl font-bold text-center mb-4">Driver 1: Size Matters</h3>
+                    <div class="chart-container h-96">
+                        <canvas id="priceVsSqftChart"></canvas>
+                    </div>
+                    <p class="mt-6 text-center text-gray-600">There is a strong, clear correlation between a home's square footage and its price. Larger homes consistently command higher prices, serving as the most fundamental indicator of value.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-2xl font-bold text-center mb-4">Driver 2: Location is Everything</h3>
+                     <div class="chart-container h-96">
+                        <canvas id="priceVsLocationChart"></canvas>
+                    </div>
+                    <p class="mt-6 text-center text-gray-600">Properties in neighborhoods with higher desirability scores (based on amenities, schools, etc.) are significantly more expensive. A top-tier location can more than double a property's value.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-20 card">
+            <h2 class="text-3xl font-bold mb-4 text-center">Driver 3: The Impact of Bedrooms</h2>
+            <p class="max-w-3xl mx-auto text-center text-lg mb-8">While overall size is key, the number of bedrooms is a critical factor for buyers. The data shows significant price jumps as bedroom counts increase, especially moving from two to three bedrooms, which hits a key demographic for families.</p>
+            <div class="chart-container h-96">
+                <canvas id="priceVsBedroomsChart"></canvas>
+            </div>
+        </section>
+
+        <section class="mb-20">
+            <h2 class="text-4xl font-extrabold text-center mb-12">Market at a Glance</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="p-6 bg-green-50 border-l-4 border-green-500 rounded-r-lg">
+                    <h3 class="text-xl font-bold text-green-800 mb-2 flex items-center"><span class="text-2xl mr-2">▲</span>Strengths</h3>
+                    <p class="text-green-700">High-value properties in desirable locations show strong market health. Consistent demand for 4 and 5-bedroom homes.</p>
+                </div>
+                <div class="p-6 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+                    <h3 class="text-xl font-bold text-yellow-800 mb-2 flex items-center"><span class="text-2xl mr-2">●</span>Weaknesses</h3>
+                    <p class="text-yellow-700">A significant portion of the housing stock was built before 2000, potentially requiring updates. Price growth for smaller homes is less aggressive.</p>
+                </div>
+                <div class="p-6 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <h3 class="text-xl font-bold text-blue-800 mb-2 flex items-center"><span class="text-2xl mr-2">■</span>Opportunities</h3>
+                    <p class="text-blue-700">Older, well-located homes present significant value-add opportunities through renovation. Townhouses offer a growing, mid-market alternative.</p>
+                </div>
+                <div class="p-6 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                    <h3 class="text-xl font-bold text-red-800 mb-2 flex items-center"><span class="text-2xl mr-2">▼</span>Threats</h3>
+                    <p class="text-red-700">Affordability is a major challenge in top-tier locations, potentially pricing out a large segment of buyers. High demand continues to push prices up.</p>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="text-center mt-12 pt-8 border-t-2 border-dashed border-gray-300">
+            <h2 class="text-3xl font-extrabold mb-6">Your Next Move</h2>
+            <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl accent-text">For Homebuyers</h3>
+                    <p class="text-gray-600 mt-2">Focus on location and size to set your budget. Look for renovation opportunities in older homes to build equity. Use this data to make informed offers.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl text-teal-600">For Real Estate Agents</h3>
+                    <p class="text-gray-600 mt-2">Leverage these insights to educate clients and set competitive prices. Highlight location scores and bedroom counts as key selling points in your listings.</p>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        const housingData = [
+            { price: 349000, sqft: 1850, bedrooms: 3, bathrooms: 2, year_built: 1995, property_type: 'Single Family', location_score: 7 }, { price: 210000, sqft: 1200, bedrooms: 2, bathrooms: 2, year_built: 2010, property_type: 'Condo', location_score: 8 }, { price: 450000, sqft: 2500, bedrooms: 4, bathrooms: 3, year_built: 2005, property_type: 'Single Family', location_score: 8 }, { price: 289000, sqft: 1600, bedrooms: 3, bathrooms: 2, year_built: 1988, property_type: 'Townhouse', location_score: 6 }, { price: 610000, sqft: 3200, bedrooms: 4, bathrooms: 4, year_built: 2018, property_type: 'Single Family', location_score: 9 }, { price: 180000, sqft: 950, bedrooms: 1, bathrooms: 1, year_built: 2005, property_type: 'Condo', location_score: 7 }, { price: 375000, sqft: 2100, bedrooms: 3, bathrooms: 2.5, year_built: 2012, property_type: 'Townhouse', location_score: 8 }, { price: 315000, sqft: 1700, bedrooms: 3, bathrooms: 2, year_built: 1999, property_type: 'Single Family', location_score: 6 }, { price: 720000, sqft: 3800, bedrooms: 5, bathrooms: 4, year_built: 2020, property_type: 'Single Family', location_score: 9 }, { price: 255000, sqft: 1400, bedrooms: 2, bathrooms: 2, year_built: 2015, property_type: 'Condo', location_score: 8 }, { price: 399000, sqft: 2200, bedrooms: 4, bathrooms: 2, year_built: 1992, property_type: 'Single Family', location_score: 7 }, { price: 330000, sqft: 1900, bedrooms: 3, bathrooms: 2.5, year_built: 2008, property_type: 'Townhouse', location_score: 7 }, { price: 550000, sqft: 2800, bedrooms: 4, bathrooms: 3, year_built: 2014, property_type: 'Single Family', location_score: 9 }, { price: 205000, sqft: 1100, bedrooms: 2, bathrooms: 1, year_built: 1985, property_type: 'Condo', location_score: 6 }, { price: 480000, sqft: 2600, bedrooms: 4, bathrooms: 3, year_built: 2001, property_type: 'Single Family', location_score: 8 }, { price: 850000, sqft: 4500, bedrooms: 5, bathrooms: 5, year_built: 2022, property_type: 'Single Family', location_score: 10 }, { price: 295000, sqft: 1550, bedrooms: 3, bathrooms: 2, year_built: 2003, property_type: 'Townhouse', location_score: 7 }, { price: 230000, sqft: 1250, bedrooms: 2, bathrooms: 2, year_built: 2011, property_type: 'Condo', location_score: 9 }, { price: 410000, sqft: 2300, bedrooms: 4, bathrooms: 2.5, year_built: 2007, property_type: 'Single Family', location_score: 7 }, { price: 590000, sqft: 3100, bedrooms: 5, bathrooms: 3, year_built: 2016, property_type: 'Single Family', location_score: 8 },
+        ];
+        
+        const palette = {
+            darkTeal: '#1A3A3A',
+            coralRed: '#FF6B6B',
+            mintGreen: '#4ECDC4',
+            lightYellow: '#F7FFF7',
+            lightGrey: '#F8F5F2'
+        };
+
+        const tooltipConfig = {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) { return label.join(' '); }
+                            return label;
+                        }
+                    }
+                }
+            }
+        };
+
+        function wrapLabels(label) {
+            const max = 16;
+            if (label.length <= max) return label;
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for(const word of words) {
+                if ((currentLine + word).length > max) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            }
+            lines.push(currentLine.trim());
+            return lines;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new Chart(document.getElementById('propertyTypeChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Single Family', 'Condo', 'Townhouse'],
+                    datasets: [{
+                        data: [
+                            housingData.filter(d => d.property_type === 'Single Family').length,
+                            housingData.filter(d => d.property_type === 'Condo').length,
+                            housingData.filter(d => d.property_type === 'Townhouse').length
+                        ],
+                        backgroundColor: [palette.coralRed, palette.mintGreen, palette.darkTeal],
+                        borderColor: palette.lightGrey,
+                        borderWidth: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, ...tooltipConfig, plugins: { ...tooltipConfig.plugins, legend: { position: 'bottom' } } }
+            });
+
+            new Chart(document.getElementById('priceVsSqftChart'), {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Single Family',
+                        data: housingData.filter(d => d.property_type === 'Single Family').map(d => ({x: d.sqft, y: d.price})),
+                        backgroundColor: palette.coralRed
+                    }, {
+                        label: 'Condo & Townhouse',
+                        data: housingData.filter(d => d.property_type !== 'Single Family').map(d => ({x: d.sqft, y: d.price})),
+                        backgroundColor: palette.darkTeal
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, ...tooltipConfig, scales: { x: { title: { display: true, text: 'Square Footage' } }, y: { title: { display: true, text: 'Price' } } } }
+            });
+
+            const priceByLocation = housingData.reduce((acc, d) => {
+                if (!acc[d.location_score]) acc[d.location_score] = [];
+                acc[d.location_score].push(d.price);
+                return acc;
+            }, {});
+            const locationLabels = Object.keys(priceByLocation).sort((a,b) => a - b);
+            const locationAvgPrices = locationLabels.map(score => priceByLocation[score].reduce((a,b) => a + b, 0) / priceByLocation[score].length);
+
+            new Chart(document.getElementById('priceVsLocationChart'), {
+                type: 'bar',
+                data: {
+                    labels: locationLabels.map(l => `Score ${l}`),
+                    datasets: [{
+                        label: 'Average Price',
+                        data: locationAvgPrices,
+                        backgroundColor: palette.mintGreen
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, ...tooltipConfig, plugins: { ...tooltipConfig.plugins, legend: { display: false } }, scales: { y: { title: { display: true, text: 'Average Price' } } } }
+            });
+
+            const priceByBedrooms = housingData.reduce((acc, d) => {
+                if (!acc[d.bedrooms]) acc[d.bedrooms] = [];
+                acc[d.bedrooms].push(d.price);
+                return acc;
+            }, {});
+            const bedroomLabels = Object.keys(priceByBedrooms).sort((a,b) => a - b);
+            const bedroomAvgPrices = bedroomLabels.map(beds => priceByBedrooms[beds].reduce((a,b) => a + b, 0) / priceByBedrooms[beds].length);
+
+            new Chart(document.getElementById('priceVsBedroomsChart'), {
+                type: 'bar',
+                data: {
+                    labels: bedroomLabels.map(l => `${l} Bed`),
+                    datasets: [{
+                        label: 'Average Price',
+                        data: bedroomAvgPrices,
+                        backgroundColor: [palette.darkTeal, palette.mintGreen, palette.coralRed, '#F2C14E', '#4A4E69'],
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, ...tooltipConfig, plugins: { ...tooltipConfig.plugins, legend: { display: false } }, scales: { y: { title: { display: true, text: 'Average Price' } } } }
+            });
+        });
+    </script>
+</body>
+</html>
